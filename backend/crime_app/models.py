@@ -1,11 +1,13 @@
 from djongo import models
 from django.utils import timezone
 
+# FIX NULLS AND FIELDS
+
 class DateObject(models.Model):
-    Date_Rptd = models.DateField()
-    DATE_OCC = models.DateField()
-    TIME_OCC = models.TimeField()
-    Date_Time_OCC = models.DateTimeField()
+    Date_Rptd = models.DateField(null=True, blank=True)
+    DATE_OCC = models.DateField(null=True, blank=True)
+    TIME_OCC = models.IntegerField(null=True, blank=True)
+    Date_Time_OCC = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -13,8 +15,8 @@ class DateObject(models.Model):
 
 class AreaObject(models.Model):
     AREA = models.IntegerField()
-    AREA_NAME = models.CharField(max_length=100)
-    Rpt_Dist_No = models.IntegerField()
+    AREA_NAME = models.CharField(max_length=100, null=True, blank=True)
+    Rpt_Dist_No = models.IntegerField(null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -22,32 +24,32 @@ class AreaObject(models.Model):
 
 class CrimeObject(models.Model):
     Crm_Cd = models.IntegerField()
-    Crm_Cd_Desc = models.CharField(max_length=100)
-    Crime_Codes = models.JSONField()
+    Crm_Cd_Desc = models.CharField(max_length=100, null=True, blank=True)
+    Crime_Codes = models.JSONField(null=True, blank=True)
 
     class Meta:
         abstract = True
 
 
 class VictimObject(models.Model):
-    Vict_Age = models.IntegerField(null=True)
-    Vict_Sex = models.CharField(max_length=5, null=True)
-    Vict_Descent = models.CharField(max_length=5, null=True)
+    Vict_Age = models.IntegerField(null=True, blank=True)
+    Vict_Sex = models.CharField(max_length=5, null=True, blank=True)
+    Vict_Descent = models.CharField(max_length=5, null=True, blank=True)
 
     class Meta:
         abstract = True
 
 
 class PremiseObject(models.Model):
-    Premis_Cd = models.FloatField()
-    Premis_Desc = models.CharField(max_length=100)
+    Premis_Cd = models.FloatField(null=True, blank=True)
+    Premis_Desc = models.CharField(max_length=100,null=True, blank=True)
 
     class Meta:
         abstract = True
 
 
 class WeaponObject(models.Model):
-    Weapon_Used_Cd = models.IntegerField(default=0)
+    Weapon_Used_Cd = models.IntegerField(default=0, null=True, blank=True)
     Weapon_Desc = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
@@ -55,37 +57,39 @@ class WeaponObject(models.Model):
 
 
 class StatusObject(models.Model):
-    Status = models.CharField(max_length=2)
-    Status_Desc = models.CharField(max_length=15)
+    Status = models.CharField(max_length=2,null=True, blank=True)
+    Status_Desc = models.CharField(max_length=15,null=True, blank=True)
 
     class Meta:
         abstract = True
 
 
 class LocationObject(models.Model):
-    LOCATION = models.CharField(max_length=200)
+    LOCATION = models.CharField(max_length=200,null=True, blank=True)
     Cross_Street = models.CharField(max_length=200, null=True, blank=True)
-    LAT = models.DecimalField(max_digits=10, decimal_places=8, null=True)
-    LON = models.DecimalField(max_digits=11, decimal_places=8, null=True)
+    LAT = models.FloatField(null=True, blank=True)
+    LON = models.FloatField(null=True, blank=True)
 
     class Meta:
         abstract = True
 
 
 class CrimeReport(models.Model):
-    _id = models.CharField(max_length=24, primary_key=True)
     DR_NO = models.IntegerField(unique=True)
-    Mocodes = models.TextField()
+    Mocodes = models.TextField(null=True, blank=True)
 
 
-    date_object = models.EmbeddedField(model_container=DateObject)
-    area_object = models.EmbeddedField(model_container=AreaObject)
-    crime_object = models.EmbeddedField(model_container=CrimeObject)
-    victim_object = models.EmbeddedField(model_container=VictimObject)
-    premise_object = models.EmbeddedField(model_container=PremiseObject)
-    weapon_object = models.EmbeddedField(model_container=WeaponObject)
-    status_object = models.EmbeddedField(model_container=StatusObject)
-    location_object = models.EmbeddedField(model_container=LocationObject)
+    date_info = models.JSONField(null=True, blank=True)
+    area_info = models.JSONField(null=True, blank=True)
+    crime_info = models.JSONField(null=True, blank=True)
+    victim_info = models.JSONField(null=True, blank=True)
+    premise_info = models.JSONField(null=True, blank=True)
+    weapon_info = models.JSONField(null=True, blank=True)
+    status_info = models.JSONField(null=True, blank=True)
+    location_info = models.JSONField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Crime Report {self.DR_NO}"
@@ -94,14 +98,14 @@ class OfficerUpvote(models.Model):
     crime_report_id = models.CharField(max_length=24)
     DR_NO = models.IntegerField()
     
-    date_occ = models.DateField()
-    time_occ = models.TimeField()  # optional
-    crm_cd = models.IntegerField()
+    Date_Time_OCC = models.DateTimeField()
+
+    Crm_Cd = models.IntegerField()
     
-    area = models.IntegerField()
-    area_name = models.CharField(max_length=100)
+    AREA = models.IntegerField()
+    AREA_NAME = models.CharField(max_length=100)
     
-    weapon_used_cd = models.IntegerField()
+    Weapon_Used_Cd = models.IntegerField()
     
     created_at = models.DateTimeField(default=timezone.now)
 
