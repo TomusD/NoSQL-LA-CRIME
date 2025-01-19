@@ -3,14 +3,14 @@ from datetime import datetime
 from django.core.management.base import BaseCommand
 from crime_app.models import CrimeReport
 
-# Convert value to float, return None if fails.
+# Convert value to float, return None if fails
 def safe_float(value):
     try:
         return float(value)
     except (ValueError, TypeError):
         return None
 
-# Command to import data from a CSV.
+# Command to import data from a CSV
 class Command(BaseCommand):
     help = "Import crime data from a CSV file into MongoDB via Django models."
 
@@ -42,7 +42,7 @@ class Command(BaseCommand):
                 self.style.ERROR(f"Error importing data from CSV: {e}")
             )
 
-    # Method to import a single row from the CSV file.
+    # Method to import a single row from the CSV file
     def insert_report_from_row(self, row):
         try:
             # Parsing Date_Rptd
@@ -60,15 +60,10 @@ class Command(BaseCommand):
             full_datetime_occ = None
             if row["DATE OCC"].strip():
                 try:
-                    # Extract DATE OCC
                     date_str = row["DATE OCC"].split()[0]
                     date_part = datetime.strptime(date_str, "%m/%d/%Y").date()
-
-                    # Parse TIME OCC
                     time_occ = str(row["TIME OCC"]).zfill(4)
                     time_part = datetime.strptime(time_occ, "%H%M").time()
-
-                    # Combine date and time
                     full_datetime_occ = datetime.combine(date_part, time_part)
                 except ValueError:
                     self.stderr.write(
@@ -123,7 +118,6 @@ class Command(BaseCommand):
                 },
             )
 
-            # Save the CrimeReport instance
             crime_report.save()
 
         except Exception as e:
