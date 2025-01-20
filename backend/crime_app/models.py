@@ -35,6 +35,7 @@ class OfficerUpvote(models.Model):
 
 # Police officer model
 class PoliceOfficer(models.Model):
+    _id = models.ObjectIdField(primary_key=True)
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     badge_number = models.CharField(max_length=5)

@@ -25,13 +25,11 @@ class Command(BaseCommand):
 
 # Method to generate synthetic police officer data
 def generate_police_officers(num_officers):
-    officers = []
     for _ in range(num_officers):
         officer = PoliceOfficer(
             name=fake.name(),
             email=fake.unique.email(),
             badge_number=str(fake.random_number(digits=5))
         )
-        officers.append(officer)
-    PoliceOfficer.objects.bulk_create(officers)
+        officer.save()
 
