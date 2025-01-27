@@ -63,7 +63,7 @@ class Query8Serializer(serializers.Serializer):
 class Query9Serializer(serializers.Serializer):
     email = serializers.EmailField()
     badgeNumbers = serializers.ListField(child=serializers.CharField())
-    totalOccurences = serializers.IntegerField()
+    DR_NO = serializers.IntegerField()
 
 class AreaSerializer(serializers.Serializer):
     area_code = serializers.IntegerField()

@@ -663,13 +663,16 @@ class query9(APIView):
         # Query 9
         pipeline = [
             {
+                "$unwind": "$upvote_details"
+            },
+            {
                 "$group": {
-                    "_id": "$email",
-                    "uniqueBadgeNumbers": {
-                        "$addToSet": "$badge_number"
+                    "_id": {
+                        "email": "$email",
+                        "DR_NO": "$upvote_details.DR_NO"
                     },
-                    "count": {
-                        "$sum": 1
+                    "badgeNumbers": {
+                        "$addToSet": "$badge_number"
                     }
                 }
             },
@@ -677,9 +680,7 @@ class query9(APIView):
                 "$match": {
                     "$expr": {
                         "$gt": [
-                            {
-                                "$size": "$uniqueBadgeNumbers"
-                            },
+                            { "$size": "$badgeNumbers" },
                             1
                         ]
                     }
@@ -688,12 +689,13 @@ class query9(APIView):
             {
                 "$project": {
                     "_id": 0,
-                    "email": "$_id",
-                    "badgeNumbers": "$uniqueBadgeNumbers",
-                    "totalOccurrences": "$count"
+                    "email": "$_id.email",
+                    "DR_NO": "$_id.DR_NO",
+                    "badgeNumbers": 1
                 }
             }
         ]
+
 
 
         # Execute the query
