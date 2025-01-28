@@ -38,7 +38,6 @@ The REST API supports the following :
 
 - **Database:** MongoDB Community Server.
 - **Framework:** Django
-- **Programming Language:** Python.
 
 ## Dataset
 
@@ -50,7 +49,7 @@ The dataset is sourced from the LAPD's publicly available records: [LAPD Crime D
 
 ```bash
 git  clone  https://github.com/TomusD/NoSQL-LA-CRIME
-cd  la-crime
+cd  NoSQL-LA-CRIME
 ```
 
 ### 2. Set Up the Environment
