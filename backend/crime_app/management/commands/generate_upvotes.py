@@ -22,7 +22,7 @@ def generate_upvotes():
 
     for report in reports_to_upvote:
         # How many upvotes for this report
-        num_upvotes_for_this_report = 900 
+        num_upvotes_for_this_report = random.randint(1, 900)
 
         for _ in range(num_upvotes_for_this_report):
             officer = random.choice(all_officers)
