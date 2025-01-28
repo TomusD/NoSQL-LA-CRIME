@@ -22,17 +22,17 @@ The project focuses on:
 
 The REST API supports the following :
 
-- **Crime Statistics**:
+- **Crime Statistics**
 
-- **Crime Trends**:
+- **Crime Trends**
 
-- **Upvote Analysis**:
+- **Upvote Analysis**
   
-- **Data Integrity**:
+- **Data Integrity**
 
-- **Crime Reports Updates**:
+- **Crime Reports Updates**
   
-- **Upvotes Updates**:
+- **Upvotes Updates**
 
 ## Technologies Used
 
