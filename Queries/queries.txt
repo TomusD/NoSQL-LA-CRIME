@@ -1,0 +1,481 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ querie 1 :
+[
+  {
+    $addFields: {
+      formatted_time: {
+        $dateToString: {
+          format: "%H:%M",
+          date: {
+            $dateFromString: {
+              dateString:
+                "$date_info.Date_Time_OCC"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    $match: {
+      $expr: {
+        $and: [
+          {
+            $gte: ["$formatted_time", "00:00"]
+          },
+          {
+            $lte: ["$formatted_time", "00:01"]
+          }
+        ]
+      }
+    }
+  },
+  {
+    $project: {
+      crime_code: "$crime_info.Crm_Cd"
+    }
+  },
+  {
+    $group: {
+      _id: "$crime_code",
+      count: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      count: -1
+    }
+  },
+  {
+    $project: {
+      Crm_Cd: "$_id",
+      count: 1,
+      _id: 0
+    }
+  }
+]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ querie 2 :
+
+[
+  {
+    $addFields: {
+      formatted_date: {
+        $dateFromString: {
+          dateString: "$date_info.Date_Time_OCC"
+        }
+      }
+    }
+  },
+  {
+    $match: {
+      formatted_date: {
+        $gte: ISODate("2020-01-01T00:00:00Z"),
+        $lte: ISODate("2020-01-01T00:01:00Z")
+      },
+      "crime_info.Crm_Cd": 354
+    }
+  },
+  {
+    $group: {
+      _id: {
+        date: {
+          $dateToString: {
+            format: "%m-%d-%Y",
+            date: "$formatted_date"
+          }
+        }
+      },
+      totalReports: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      "_id.date": 1
+    }
+  },
+  {
+    $project: {
+      date: "$_id.date",
+      totalReports: 1,
+      _id: 0
+    }
+  }
+]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ querie 3 :
+
+[
+  {
+    $match: {
+      "date_info.Date_Time_OCC": {
+        $regex: "^2020-01-01"
+      }
+    }
+  },
+  {
+    $project: {
+      "area_info.AREA": 1,
+      "area_info.AREA_NAME": 1,
+      crime_codes: {
+        $filter: {
+          input: "$crime_info.Crime_Codes",
+          as: "code",
+          cond: {
+            $ne: ["$$code", null]
+          }
+        }
+      }
+    }
+  },
+  {
+    $unwind: "$crime_codes"
+  },
+  {
+    $group: {
+      _id: {
+        area_code: "$area_info.AREA",
+        area_name: "$area_info.AREA_NAME",
+        crime_code: "$crime_codes"
+      },
+      count: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      count: -1
+    }
+  },
+  {
+    $group: {
+      _id: {
+        area_code: "$_id.area_code",
+        area_name: "$_id.area_name"
+      },
+      most_common_crimes: {
+        $push: {
+          crime_code: "$_id.crime_code",
+          count: "$count"
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      area_code: "$_id.area_code",
+      area_name: "$_id.area_name",
+      top_3_crimes: {
+        $slice: ["$most_common_crimes", 3]
+      }
+    }
+  }
+]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ querie 4 :
+
+[
+  {
+    $addFields: {
+      formatted_time: {
+        $dateToString: {
+          format: "%H:%M",
+          date: {
+            $dateFromString: {
+              dateString:
+                "$date_info.Date_Time_OCC"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    $match: {
+      $expr: {
+        $and: [
+          {
+            $gte: ["$formatted_time", "00:00"]
+          },
+          {
+            $lte: ["$formatted_time", "00:01"]
+          }
+        ]
+      }
+    }
+  },
+  {
+    $project: {
+      crime_code: "$crime_info.Crm_Cd"
+    }
+  },
+  {
+    $group: {
+      _id: "$crime_code",
+      count: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      count: 1
+    }
+  },
+  {
+    $limit: 2
+  },
+  {
+    $project: {
+      Crm_Cd: "$_id",
+      count: 1,
+      _id: 0
+    }
+  }
+]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ querie 5 :
+
+[
+  {
+    $group: {
+      _id: {
+        Crm_Cd: "$crime_info.Crm_Cd",
+        AREA: "$area_info.AREA"
+      },
+      Weapon_Types: {
+        $addToSet: "$weapon_info.Weapon_Desc"
+      }
+    }
+  },
+  {
+    $group: {
+      _id: "$_id.Crm_Cd",
+      Areas: {
+        $addToSet: "$_id.AREA"
+      },
+      Weapon_Types: {
+        $addToSet: "$Weapon_Types"
+      }
+    }
+  },
+  {
+    $match: {
+      "Areas.1": {
+        $exists: true
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      Crm_Cd: "$_id",
+      Areas: 1,
+      Weapon_Types: {
+        $reduce: {
+          input: "$Weapon_Types",
+          initialValue: [],
+          in: {
+            $setUnion: ["$$value", "$$this"]
+          }
+        }
+      }
+    }
+  }
+]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ querie 6 :
+
+[
+  {
+    $unwind: "$upvote_details"
+  },
+  {
+    $match: {
+      $expr: {
+        $eq: [
+          {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$upvote_details.Date_Time_OCC"
+            }
+          },
+          "2020-02-01"
+        ]
+      }
+    }
+  },
+  {
+    $group: {
+      _id: "$upvote_details.DR_NO",
+      upvote_count: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      upvote_count: -1
+    }
+  },
+  {
+    $limit: 50
+  },
+  {
+    $project: {
+      _id: 0,
+      DR_NO: "$_id",
+      upvote_count: 1
+    }
+  }
+]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ querie 7 :
+
+[
+  {
+    $unwind: "$upvote_details"
+  },
+  {
+    $group: {
+      _id: "$badge_number",
+      officer_name: {
+        $first: "$name"
+      },
+      total_upvotes: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      total_upvotes: -1
+    }
+  },
+  {
+    $limit: 50
+  },
+  {
+    $project: {
+      _id: 0,
+      badge_number: "$_id",
+      officer_name: 1,
+      total_upvotes: 1
+    }
+  }
+]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ querie 8 :
+
+[
+  {
+    $unwind: "$upvote_details"
+  },
+  {
+    $group: {
+      _id: "$badge_number",
+      officer_name: {
+        $first: "$name"
+      },
+      unique_areas: {
+        $addToSet: "$upvote_details.AREA"
+      }
+    }
+  },
+  {
+    $addFields: {
+      total_areas: {
+        $size: "$unique_areas"
+      }
+    }
+  },
+  {
+    $sort: {
+      total_areas: -1
+    }
+  },
+  {
+    $limit: 50
+  },
+  {
+    $project: {
+      _id: 0,
+      badge_number: "$_id",
+      officer_name: 1,
+      total_areas: 1
+    }
+  }
+]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ querie 9 :
+
+[
+  {
+    $unwind: "$upvote_details"
+  },
+  {
+    $group: {
+      _id: {
+        email: "$email",
+        DR_NO: "$upvote_details.DR_NO"
+      },
+      badgeNumbers: {
+        $addToSet: "$badge_number"
+      }
+    }
+  },
+  {
+    $match: {
+      $expr: {
+        $gt: [
+          { $size: "$badgeNumbers" },
+          1
+        ]
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      email: "$_id.email",
+      DR_NO: "$_id.DR_NO",
+      badgeNumbers: 1
+    }
+  }
+]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ querie 10 :
+
+[
+  {
+    $match: {
+      name: "Shawn Stephenson"
+    }
+  },
+  {
+    $unwind: "$upvote_details"
+  },
+  {
+    $group: {
+      _id: "$name",
+      voted_areas: {
+        $addToSet: {
+          area_code: "$upvote_details.AREA",
+          area_name: "$upvote_details.AREA_NAME"
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      name: "$_id",
+      voted_areas: 1
+    }
+  }
+]
