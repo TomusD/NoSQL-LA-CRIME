@@ -75,7 +75,7 @@ PORT=<port> # e.g., 27017
 
 ### 3. Load the Dataset
 
-Load the LAPD dataset into the PostgreSQL database using the provided scripts.
+Load the LAPD dataset into the MongoDB database using the provided scripts.
 
 ```bash
 py  manage.py  import_data
