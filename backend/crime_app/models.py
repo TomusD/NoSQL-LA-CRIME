@@ -16,6 +16,11 @@ class CrimeReport(models.Model):
     status_info = models.JSONField(null=True, blank=True)
     location_info = models.JSONField(null=True, blank=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["DR_NO"]),
+        ]
+
     def __str__(self):
         return f"Crime Report {self.DR_NO}"
     
@@ -45,6 +50,13 @@ class PoliceOfficer(models.Model):
         default=[],
         blank=True
     )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["badge_number"]),
+            models.Index(fields=["email"]),
+            models.Index(fields=["name"]),
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.badge_number})"
