@@ -69,7 +69,7 @@ To connect to your database, create an env file with the properties of the datab
 'ENGINE': 'djongo',
 'NAME': 'LA-CRIME',
 HOST=<host> # e.g., localhost
-PORT=<port> # e.g., 27017
+PORT=<port> # e.g., 8000
 ```
 
 ### 3. Load the Dataset
