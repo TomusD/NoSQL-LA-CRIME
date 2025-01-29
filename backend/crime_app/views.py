@@ -942,6 +942,18 @@ class AddOfficerUpvoteView(APIView):
         officer = get_object_or_404(PoliceOfficer, name=name, email=email, badge_number=badge_number)
         crime_report = get_object_or_404(CrimeReport, DR_NO=DR_NO)
 
+        # Check if the officer has already upvoted this crime report or has reached the maximum number of upvotes
+        if len(officer.upvote_details) >= 1000:
+            return Response(
+                {"message": "Officer has reached the maximum number of upvotes allowed."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if any(detail["DR_NO"] == DR_NO for detail in officer.upvote_details):
+            return Response(
+                {"message": "Officer has already upvoted this crime report."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Create the new upvote
         upvote = {
             "crime_report_id": str(crime_report._id),
